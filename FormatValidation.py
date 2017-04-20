@@ -17,7 +17,14 @@
 # 	- Error if revised expression features anything other than these operator or
 # 		operand replaceents.
 
-# (^[i|r])([a-zA-Z].*)(\+|\-|\*|\=|//).\d*
+# Integers: 	(^[i|r])([a-zA-Z].*)(\+|\-|\*|\=|//).\d*
+# Literal Int:	(\d)[\S]
+# Literal Real:	\d*[.]\d*\S
+# Integer Var: 	(^[i])([a-zA-Z]\S)
+# Real Var: 	(^[r])([a-zA-Z]\S)
+# Operators: 	([+|\-|*|/|=]|//)
+
+# Use re.search() to find and replace.
 
 #LIB##############################################################################
 
@@ -27,7 +34,14 @@ import re
 
 #GLOBAL#DECLARATIONS##############################################################
 
+operands = ['varrint', 'varreal', 'litint', 'litreal']
+operators = ['opadd', 'opsub', 'opmult', 'opdiv', 'opidiv', 'opequal']
+terms = ['termint', 'termreal']
 
+varreal = re.compile(r'(^[r])([a-zA-Z]\S), s')
+varint = re.compile(r'(^[i])([a-zA-Z]\S), s')
+litreal = re.compile(r'(\d*[.]\d*\S), s')
+litint = re.compile(r'(\d)([\S]), s')
 
 #FN###############################################################################
 def read_file() :
@@ -36,7 +50,8 @@ def read_file() :
 			if os.path.isfile(arg) and arg.endswith(".txt") :
 				return arg
 #--------------------------------------------------------------------------------#
-def read_line() :
+def read_line(line) :
+
 	return
 #--------------------------------------------------------------------------------#
 def throw_fatal(error) :
@@ -46,10 +61,6 @@ def throw_fatal(error) :
 #MAIN#############################################################################
 
 # Argument Reading and *.txt File Filtering
-
-#file = read_file()
-
 sentence = "iInteger = 3"
-
-print(re.split(r'\s*', sentence))
-print(re.split(r'\s*', "Testing this regex."))
+#file = read_file()
+read_line(sentence)
