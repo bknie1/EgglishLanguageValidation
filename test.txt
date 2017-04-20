@@ -1,0 +1,2 @@
+iInteger = 3 + iInteger - 3 * 4 / 5
+rValue = 3.54 // 5.6

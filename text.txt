@@ -1,4 +1,0 @@
-iNumber = 4
-rNumber = 3.23
-rTotal = iNumber + rNumber
-rTotal2 = iNumber // rNumber
