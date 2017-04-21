@@ -16,16 +16,7 @@
 # 		- Replace with opequal, opadd, opsub, opmult, oprdiv, opidiv.
 # 	- Error if revised expression features anything other than these operator or
 # 		operand replaceents.
-
-# Integers: 	(^[i|r])([a-zA-Z].*)(\+|\-|\*|\=|//).\d*
-# Literal Int:	(\d)[\S]
-# Literal Real:	\d*[.]\d*\S
-# Integer Var: 	(^[i])([a-zA-Z]\S)
-# Real Var: 	(^[r])([a-zA-Z]\S)
-# Operators: 	([+|\-|*|/|=]|//)
-
-# Use re.search() to find and replace.
-
+# 	- I understand why regex is valuable but this gave me a headache. Super burned out.
 #LIB##############################################################################
 
 import sys
@@ -34,12 +25,8 @@ import re
 
 #GLOBAL#DECLARATIONS##############################################################
 
-operands = ['varint', 'varreal', 'litint', 'litreal']
-operators = ['opadd', 'opsub', 'opmult', 'opdiv', 'opidiv', 'opequal']
-terms = ['termint', 'termreal']
-
-# varint = re.compile		(r'([i]\w*.)')
-# varreal = re.compile	(r'(([r]\w*.)!(varint))')
+terms = ['varint', 'varreal', 'litint', 'litreal', 'opadd', 'opsub', 'opmult',
+'oprdiv', 'opidiv', 'opequal', 'termint', 'termreal', 'subint', 'subreal', 'statement']
 
 varint = re.compile		(r'[i]\w*')
 varreal = re.compile	(r'(?<!va)(r\w*)') # Don't overwrite varint's by mistake.
@@ -52,19 +39,13 @@ idiv = re.compile		(r'\/\/')
 rdiv = re.compile		(r'[\/]')
 equ = re.compile		(r'\=')
 
-termint = re.compile 	(r'(termint|varint|litint)\s(opmult|opidiv)\s(varint|litint)')
-termreal = re.compile	(r'(termreal|varreal|litreal)\s(opmult|opidiv)\s(varreal|litreal)')
+termint = re.compile(r'(termint|varint|litint)\s(opmult|opidiv)\s(varint|litint)')
+termreal = re.compile(r'(termreal|varreal|litreal)\s(opmult|opidiv)\s(varreal|litreal)')
 
-# Why wouldn't these work? Aren't these better formatted?
-# varint = re.compile	(r'([i]\w*)g')
-# varreal = re.compile	(r'([r]\w*)g')
-# litreal = re.compile	(r'(\d*[.]\d*)g')
-# litint = re.compile		(r'(\d)g')
-# add = re.compile		(r'(\+)g')
-# subt = re.compile		(r'(\-)g')
-# mult = re.compile		(r'(\*)g')
-# divi = re.compile		(r'(\\)g')
-# idiv = re.compile		(r'(\\\\)g')
+subint = re.compile(r'(subint|varint|litint|termint)\s(opadd|opsub)(varint|litint|termint)')
+subreal = re.compile(r'(subreal|varreal|litreal|termreal)\s(opadd|opsub)(varreal|litreal|termreal)')
+
+statement = re.compile(r'((varint)\s(opequal)\s(litint|varint|termint|subint))|((varreal)\s(opequal)\s(litreal|varreal|termreal|subreal))')
 
 #FN###############################################################################
 def read_file() :
@@ -77,7 +58,7 @@ def read_file() :
 # Phase 1: Replaces operands and operators.
 def find_ops(line) :
 	# sub(regex/re object, replacement value, string)
-	print(line)
+	print(line.strip())
 
 	line = re.sub(varint, 'varint', line)
 	line = re.sub(varreal, 'varreal', line)
@@ -92,23 +73,51 @@ def find_ops(line) :
 
 	line = re.sub(equ, 'opequal', line)
 
-	print(line)
+	print(line.strip())
 	return line
 #--------------------------------------------------------------------------------#
-def find_terms(line) :
-	line = re.sub(termint, 'termint', line)
-	line = re.sub(termreal, 'termreal', line)
-	print(line)
-	return line
+def find_terms(op_line) :
+	op_line = re.sub(termint, 'termint', op_line)
+	op_line = re.sub(termreal, 'termreal', op_line)
+	print(op_line.strip())
+	return op_line
+#--------------------------------------------------------------------------------#
+def find_sub(term_line) :
+	term_line = re.sub(subint, 'subint', term_line)
+	term_line = re.sub(subreal, 'subreal', term_line)
+	print(term_line.strip())
+	return term_line
+#--------------------------------------------------------------------------------#
+def find_statement(sub_line) :
+	sub_line = re.sub(statement, 'statement', sub_line)
+	print(sub_line.strip())
+	return sub_line
+#--------------------------------------------------------------------------------#
+def error_checking(sub_line) :
+	flag = 1
+	if len(sub_line) == 0 :
+		if sub_line != 'statement': throw_fatal("Invalid syntax.")
+	else :
+		for word in line :
+			for ops in terms :
+				if word is ops:
+					flag == 0
+		if flag == 0 :
+			throw_fatal("Invalid syntax.")
 #--------------------------------------------------------------------------------#
 def throw_fatal(error) :
 	print("Error:", error)
 	sys.exit(0)
-
 #MAIN#############################################################################
 
 # Argument Reading and *.txt File Filtering
 file = read_file()
 for line in file :
+	print("===========================================================================")
 	line = find_ops(line)
 	line = find_terms(line)
+	line = find_sub(line)
+	line = find_statement(line)
+	line = line.split()
+	error_checking(line)
+	print("===========================================================================")
