@@ -42,17 +42,18 @@ terms = ['termint', 'termreal']
 # varreal = re.compile	(r'(([r]\w*.)!(varint))')
 
 varint = re.compile		(r'[i]\w*')
-varreal = re.compile	(r'(?<!va)(r\w*)')
+varreal = re.compile	(r'(?<!va)(r\w*)') # Don't overwrite varint's by mistake.
 litreal = re.compile	(r'\d*[.]\d*')
 litint = re.compile		(r'\d')
 add = re.compile		(r'\+')
 subt = re.compile 		(r'\-')
 mult = re.compile		(r'\*')
 idiv = re.compile		(r'\/\/')
-divi = re.compile		(r'[\/]')
+rdiv = re.compile		(r'[\/]')
 equ = re.compile		(r'\=')
 
-intterm = re.compile 	('(varint|litint)(opmult|opidiv)(varint|litint)')
+termint = re.compile 	(r'(termint|varint|litint)\s(opmult|opidiv)\s(varint|litint)')
+termreal = re.compile	(r'(termreal|varreal|litreal)\s(opmult|opidiv)\s(varreal|litreal)')
 
 # Why wouldn't these work? Aren't these better formatted?
 # varint = re.compile	(r'([i]\w*)g')
@@ -87,7 +88,7 @@ def find_ops(line) :
 	line = re.sub(mult, 'opmult', line)
 
 	line = re.sub(idiv, 'opidiv', line)
-	line = re.sub(divi, 'opdiv', line)
+	line = re.sub(rdiv, 'oprdiv', line)
 
 	line = re.sub(equ, 'opequal', line)
 
@@ -95,7 +96,8 @@ def find_ops(line) :
 	return line
 #--------------------------------------------------------------------------------#
 def find_terms(line) :
-	line = re.sub(intterm, 'intterm', line)
+	line = re.sub(termint, 'termint', line)
+	line = re.sub(termreal, 'termreal', line)
 	print(line)
 	return line
 #--------------------------------------------------------------------------------#
