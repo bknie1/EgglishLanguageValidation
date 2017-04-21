@@ -38,16 +38,21 @@ operands = ['varint', 'varreal', 'litint', 'litreal']
 operators = ['opadd', 'opsub', 'opmult', 'opdiv', 'opidiv', 'opequal']
 terms = ['termint', 'termreal']
 
-varint = re.compile		('i\w*')
-varreal = re.compile	('r\w*')
-litreal = re.compile	('\d*[.]\d*')
-litint = re.compile		('\d')
-add = re.compile		('\+')
-subt = re.compile 		('\-')
-mult = re.compile		('\*')
-divi = re.compile		('\/!\/')
-idiv = re.compile		('\/\/')
-equ = re.compile		('\=')
+# varint = re.compile		(r'([i]\w*.)')
+# varreal = re.compile	(r'(([r]\w*.)!(varint))')
+
+varint = re.compile		(r'[i]\w*')
+varreal = re.compile	(r'(?<!va)(r\w*)')
+litreal = re.compile	(r'\d*[.]\d*')
+litint = re.compile		(r'\d')
+add = re.compile		(r'\+')
+subt = re.compile 		(r'\-')
+mult = re.compile		(r'\*')
+idiv = re.compile		(r'\/\/')
+divi = re.compile		(r'[\/]')
+equ = re.compile		(r'\=')
+
+intterm = re.compile 	('(varint|litint)(opmult|opidiv)(varint|litint)')
 
 # Why wouldn't these work? Aren't these better formatted?
 # varint = re.compile	(r'([i]\w*)g')
@@ -72,21 +77,26 @@ def read_file() :
 def find_ops(line) :
 	# sub(regex/re object, replacement value, string)
 	print(line)
+
 	line = re.sub(varint, 'varint', line)
 	line = re.sub(varreal, 'varreal', line)
 	line = re.sub(litreal, 'litreal', line)
 	line = re.sub(litint, 'litint', line)
 	line = re.sub(add, 'opadd', line)
 	line = re.sub(subt, 'opsub', line)
-	line = re.sub(mult, 'upmult', line)
-	line = re.sub(divi, 'opdiv', line)
+	line = re.sub(mult, 'opmult', line)
+
 	line = re.sub(idiv, 'opidiv', line)
+	line = re.sub(divi, 'opdiv', line)
+
 	line = re.sub(equ, 'opequal', line)
+
 	print(line)
 	return line
 #--------------------------------------------------------------------------------#
 def find_terms(line) :
-
+	line = re.sub(intterm, 'intterm', line)
+	print(line)
 	return line
 #--------------------------------------------------------------------------------#
 def throw_fatal(error) :
